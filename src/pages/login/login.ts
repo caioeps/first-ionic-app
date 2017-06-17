@@ -13,29 +13,25 @@ import { ChatPage } from '../chat/chat';
 })
 export class LoginPage {
   url: string;
-  user = { username: '', socket: null };
+  user = { username: '' };
+  socket: Socket;
   headers: Headers;
 
   constructor(public navCtrl: NavController, public alertCtrl : AlertController, public http: Http, public platform:Platform) {
     this.headers = new Headers();
-    this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.url = this.platform.is('cordova') ? 'http://localhost:4000/api' : '/api';
+    // this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    this.url = this.platform.is('cordova') ? 'localhost:4000/api' : '/api';
   }
 
   login() {
-    console.log(this.user);
-    console.log(this.url);
-
-    this.http.post(this.url + '/users?user[username]=' + this.user.username, {}, { headers: this.headers })
+    this.http.post(this.url + '/users', { user: this.user }, { headers: this.headers })
       .map(res => res.json)
       .subscribe(
         res => {
-          console.log(res);
-          console.log('Logged in!');
-          this.user.socket = new Socket(this.url + '/socket', {
+          this.socket = new Socket('/socket', {
             params: { user: this.user }
           });
-          this.user.socket.connect()
+          this.socket.connect()
           this.navCtrl.push(ChatPage);
         },
         err => {
